@@ -100,6 +100,13 @@ html, body {
 .btn-primary:active { background: var(--primary-d); }
 .btn-primary:disabled { background: #b9c6dd; cursor: not-allowed; }
 .btn-ghost { background: #eef2f7; color: #33414f; }
+/* 加练按钮：低调但可发现，避免抢主线任务的风头 */
+.btn-extra {
+  background: #fff6e8; color: #9a6412;
+  border: 1px dashed #f0c584;
+  width: 100%; font-size: 14px; margin-top: 8px;
+}
+.btn-extra:active { background: #ffeccc; }
 .btn-danger { background: var(--bad-bg); color: var(--bad); }
 .btn-lg { width: 100%; padding: 14px; font-size: 16px; }
 .btn + .btn { margin-top: 8px; }

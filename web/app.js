@@ -342,6 +342,49 @@ function renderForecast() {
   box.appendChild(note);
 }
 
+/* ---------- 加练：时间充裕时再来一轮 ----------
+   原则：加练只抽「今天还没做过」的题，避免同一天重复刷同一道
+   （重复刷会让间隔重复失真，也会把今天的错题掩盖掉）。 */
+function pickExtraRound(n) {
+  const today = todayStr();
+  const doneToday = new Set(
+    Object.entries(DB.records)
+      .filter(([, r]) => r.lastSeen === today)
+      .map(([id]) => id)
+  );
+
+  // 优先：到期的错题（今天还没碰过的）
+  const todayStr_ = today;
+  const dueWrong = Object.entries(DB.records)
+    .filter(([id, r]) => !doneToday.has(id) && r.wrongCount > 0
+      && (r.nextReview || todayStr_) <= todayStr_)
+    .map(([id]) => id);
+
+  // 其次：从没做过的新题
+  const neverDone = BANK.filter(q => !DB.records[q.id] && !doneToday.has(q.id))
+    .map(q => q.id);
+
+  const picked = [...dueWrong, ...neverDone].slice(0, n);
+  return picked.map(id => BANK_BY_ID[id]).filter(Boolean);
+}
+
+function updateExtraButton() {
+  const btn = $('#btnExtra');
+  if (!btn) return;
+  const today = todayStr();
+  const doneToday = Object.values(DB.records).filter(r => r.lastSeen === today).length;
+  const pending = buildTodayTask().length;
+  const pool = pickExtraRound(999).length;   // 还能加练多少
+
+  // 只有「今天已经做过题」且「还有可加练的题」时才显示
+  if (doneToday > 0 && pool > 0) {
+    btn.hidden = false;
+    btn.textContent = `今天已做 ${doneToday} 题，再来一轮（还有 ${pool} 题）`;
+  } else {
+    btn.hidden = true;
+  }
+}
+
 /* ---------- 首页渲染 ---------- */
 function renderHome() {
   const today = todayStr();
@@ -371,6 +414,9 @@ function renderHome() {
   }
   $('#btnStart').disabled = task.length === 0;
   $('#btnStart').textContent = task.length ? '开始打卡' : '今日已完成';
+
+  // 时间充裕时加练：做完当日任务后出现「再来一轮」
+  updateExtraButton();
 
   // 科目进度
   const box = $('#subjectProgress');
@@ -726,6 +772,13 @@ function renderSettings() {
 /* ---------- 绑定事件 ---------- */
 function bindEvents() {
   $('#btnStart').addEventListener('click', () => startQuiz(buildTodayTask()));
+
+  // 加练：再来一轮
+  $('#btnExtra').addEventListener('click', () => {
+    const list = pickExtraRound(DB.settings.newPerDay);
+    if (!list.length) { toast('没有可加练的题了'); return; }
+    startQuiz(list);
+  });
 
   $('#btnWrongQuick').addEventListener('click', () => {
     const today = todayStr();

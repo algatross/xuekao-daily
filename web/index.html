@@ -1,13 +1,13 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>学考每日打卡</title>
 <!-- 每次改动样式/脚本后把版本号 +1，手机端才能拿到新文件而不是缓存 -->
-<link rel="stylesheet" href="style.css?v=20261118">
+<link rel="stylesheet" href="style.css?v=20261119">
 <script>
-  window.BANK_VERSION = '20261118';
+  window.BANK_VERSION = '20261119';
 </script>
 </head>
 <body>
@@ -33,6 +33,7 @@
       </div>
       <button class="btn btn-primary btn-lg" id="btnStart">开始打卡</button>
       <button class="btn btn-ghost" id="btnWrongQuick">只练错题</button>
+      <button class="btn btn-extra" id="btnExtra" hidden></button>
     </div>
 
     <div class="subject-progress" id="subjectProgress"></div>
@@ -151,6 +152,7 @@
 
 <div id="toast" class="toast"></div>
 
-<script src="app.js?v=20261118"></script>
+<script src="app.js?v=20261119"></script>
 </body>
 </html>
+
