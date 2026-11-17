@@ -35,6 +35,10 @@ OUT_IMG = os.path.join(OUT_DATA, 'img')
 SUBJECTS = ['生物', '历史', '政治', '地理']
 TOTAL_Q = 100
 IMG_DPI = 160
+# 截图格式：WebP 质量 80。实测与 PNG 肉眼看不出差别（文字/线条锐利），
+# 体积约为 PNG 的 1/3，对手机加载流量友好。
+IMG_FORMAT = 'WEBP'
+IMG_QUALITY = 80
 
 # ---------- 文本规范化 ----------
 
@@ -590,11 +594,14 @@ def crop_question(doc, q, next_q, out_path):
                                    dpi=IMG_DPI)]
 
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    import PIL.Image as PILImage
+
     if len(pixmaps) == 1:
-        pixmaps[0].save(out_path)
+        img = PILImage.frombytes("RGB", (pixmaps[0].width, pixmaps[0].height),
+                                 pixmaps[0].samples)
+        save_img(img, out_path)
     else:
         # 纵向拼接多页裁片
-        import PIL.Image as PILImage
         imgs = [PILImage.frombytes("RGB", (p.width, p.height), p.samples)
                 for p in pixmaps]
         total_h = sum(im.height for im in imgs) + 6 * (len(imgs) - 1)
@@ -603,8 +610,16 @@ def crop_question(doc, q, next_q, out_path):
         for im in imgs:
             canvas.paste(im, (0, y))
             y += im.height + 6
-        canvas.save(out_path)
+        save_img(canvas, out_path)
     return os.path.relpath(out_path, OUT_DATA).replace('\\', '/')
+
+
+def save_img(img, out_path):
+    """按 IMG_FORMAT 保存。WebP 用有损 q80，肉眼与 PNG 无差别但体积约 1/3。"""
+    if IMG_FORMAT == 'WEBP':
+        img.save(out_path, 'WEBP', quality=IMG_QUALITY, method=6)
+    else:
+        img.save(out_path)
 
 
 # ---------- 主流程 ----------
@@ -638,7 +653,7 @@ def main():
             next_q = qs.get(no + 1)
             img_rel = crop_question(
                 qdoc, q, next_q,
-                os.path.join(OUT_IMG, subject, f'{no:03d}.png'))
+                os.path.join(OUT_IMG, subject, f'{no:03d}.{IMG_FORMAT.lower()}'))
 
             entry = {
                 "id": f'{subject}-{no:03d}',
