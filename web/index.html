@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>学考每日打卡</title>
+<!-- 每次改动样式/脚本后把版本号 +1，手机端才能拿到新文件而不是缓存 -->
+<link rel="stylesheet" href="style.css?v=20261117">
+<script>
+  window.BANK_VERSION = '20261117';
+</script>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ========== 首页 ========== -->
+  <section class="screen" id="screen-home">
+    <header class="topbar">
+      <h1>学考打卡</h1>
+      <div class="streak" id="streakBox" title="连续打卡天数">
+        <span class="flame">🔥</span><span id="streakDays">0</span>
+      </div>
+    </header>
+
+    <div class="today-card">
+      <div class="today-title">今日任务</div>
+      <div class="today-sub" id="todaySub">正在加载题库…</div>
+      <div class="today-nums">
+        <div class="num-item"><b id="numNew">0</b><span>新题</span></div>
+        <div class="num-item"><b id="numReview">0</b><span>复习</span></div>
+        <div class="num-item"><b id="numDone">0</b><span>已完成</span></div>
+      </div>
+      <button class="btn btn-primary btn-lg" id="btnStart">开始打卡</button>
+      <button class="btn btn-ghost" id="btnWrongQuick">只练错题</button>
+    </div>
+
+    <div class="subject-progress" id="subjectProgress"></div>
+
+    <div class="card">
+      <div class="card-title">进度预测</div>
+      <div id="forecastBox"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">打卡日历</div>
+      <div class="calendar" id="calendar"></div>
+      <div class="cal-legend">
+        <span><i class="dot dot-on"></i>已打卡</span>
+        <span><i class="dot dot-off"></i>未打卡</span>
+        <span><i class="dot dot-today"></i>今天</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">总体统计</div>
+      <div class="stats" id="statsBox"></div>
+    </div>
+
+    <footer class="footer">
+      <button class="link" id="btnWrongbook">错题本</button>
+      <button class="link" id="btnSettings">设置</button>
+    </footer>
+  </section>
+
+  <!-- ========== 做题 ========== -->
+  <section class="screen" id="screen-quiz" hidden>
+    <header class="topbar topbar-quiz">
+      <button class="icon-btn" id="btnQuit" aria-label="退出">✕</button>
+      <div class="progress-wrap">
+        <div class="progress-bar"><i id="progressFill"></i></div>
+        <div class="progress-text" id="progressText">1 / 10</div>
+      </div>
+      <div class="quiz-subject" id="quizSubject"></div>
+    </header>
+
+    <main class="quiz-body" id="quizBody"></main>
+
+    <footer class="quiz-footer">
+      <button class="btn btn-ghost" id="btnPrev">上一题</button>
+      <button class="btn btn-primary" id="btnNext">下一题</button>
+    </footer>
+  </section>
+
+  <!-- ========== 结果 ========== -->
+  <section class="screen" id="screen-result" hidden>
+    <header class="topbar">
+      <h1>本次结果</h1>
+      <button class="icon-btn" id="btnResultClose" aria-label="关闭">✕</button>
+    </header>
+
+    <div class="result-summary" id="resultSummary"></div>
+    <div class="result-list" id="resultList"></div>
+
+    <div class="result-actions">
+      <button class="btn btn-primary btn-lg" id="btnRedoWrong">重练本次错题</button>
+      <button class="btn btn-ghost" id="btnBackHome">返回首页</button>
+    </div>
+  </section>
+
+  <!-- ========== 错题本 ========== -->
+  <section class="screen" id="screen-wrong" hidden>
+    <header class="topbar">
+      <button class="icon-btn" id="btnWrongBack" aria-label="返回">←</button>
+      <h1>错题本</h1>
+      <div></div>
+    </header>
+    <div class="filter-row" id="wrongFilter"></div>
+    <div class="result-list" id="wrongList"></div>
+    <div class="result-actions" id="wrongActions"></div>
+  </section>
+
+  <!-- ========== 设置 ========== -->
+  <section class="screen" id="screen-settings" hidden>
+    <header class="topbar">
+      <button class="icon-btn" id="btnSettingsBack" aria-label="返回">←</button>
+      <h1>设置</h1>
+      <div></div>
+    </header>
+    <div class="card">
+      <label class="field">
+        <span>每天新题数量</span>
+        <input type="range" id="setNew" min="5" max="40" step="1">
+        <b id="setNewVal"></b>
+      </label>
+      <label class="field">
+        <span>每天复习错题数量</span>
+        <input type="range" id="setReview" min="0" max="50" step="5">
+        <b id="setReviewVal"></b>
+      </label>
+      <label class="field field-switch">
+        <span>做错后立即显示解析</span>
+        <input type="checkbox" id="setInstant">
+      </label>
+    </div>
+    <div class="card">
+      <div class="card-title">数据</div>
+      <p class="muted">记录保存在这台设备的浏览器里。换设备或清缓存会丢失。</p>
+      <button class="btn btn-ghost" id="btnExport">导出记录</button>
+      <button class="btn btn-ghost" id="btnImport">导入记录</button>
+      <button class="btn btn-danger" id="btnReset">清空全部记录</button>
+      <input type="file" id="fileImport" accept="application/json" hidden>
+    </div>
+    <div class="card">
+      <div class="card-title">题库信息</div>
+      <div class="muted" id="bankInfo"></div>
+    </div>
+  </section>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="app.js?v=20261117"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+# ===== 原始 PDF 题库（不纳入版本控制）=====
+# 已解析为 data/questions.json + data/img/，网页运行不依赖原始 PDF；
+# 且原卷可能涉及版权，故不推送。
+高频考点100题/
+合格考必背知识点/
+*.pdf
+
+# ===== 依赖与缓存 =====
+node_modules/
+__pycache__/
+*.pyc
+
+# ===== 工具脚本的临时产物 =====
+tools/tmpimg/
+tools/edge-profile*/
+tools/ep*/
+tools/shot*.png
+tools/probe/
+tools/*.log
+
+# ===== 系统 / 编辑器 =====
+Thumbs.db
+.DS_Store
+.vscode/
+.idea/
